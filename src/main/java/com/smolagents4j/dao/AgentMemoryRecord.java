@@ -4,13 +4,6 @@ import jakarta.persistence.*;
 
 import java.time.OffsetDateTime;
 
-/**
- * JPA entity that maps to the {@code agent_memory} table.
- *
- * <p>Each row represents one {@link com.smolagents4j.models.ModelOutput} step
- * produced during an agent run, scoped to a {@code sessionId} so that multiple
- * runs can share the same database without interfering with each other.
- */
 @Entity
 @Table(
         name = "agent_memory",
@@ -49,10 +42,6 @@ public class AgentMemoryRecord {
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
-    // -----------------------------------------------------------------------
-    // Lifecycle
-    // -----------------------------------------------------------------------
-
     @PrePersist
     void prePersist() {
         if (createdAt == null) {
@@ -60,11 +49,6 @@ public class AgentMemoryRecord {
         }
     }
 
-    // -----------------------------------------------------------------------
-    // Constructors
-    // -----------------------------------------------------------------------
-
-    /** Required by JPA. */
     protected AgentMemoryRecord() {
     }
 
@@ -86,10 +70,6 @@ public class AgentMemoryRecord {
         this.finalAnswer = finalAnswer;
         this.isCompleted = isCompleted;
     }
-
-    // -----------------------------------------------------------------------
-    // Getters
-    // -----------------------------------------------------------------------
 
     public Long getId() {
         return id;

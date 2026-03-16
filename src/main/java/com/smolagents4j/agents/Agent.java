@@ -22,10 +22,11 @@ public class Agent {
     AgentMemory memory;
 
 
-    Agent(String task, AgentMemory agentMemory, AgentLogger agentLogger) {
+    public Agent(String task, AgentMemory agentMemory, AgentLogger agentLogger, Model llm) {
         this.task = task;
         this.memory = agentMemory;
         this.agentLogger = agentLogger;
+        this.llm = llm;
     }
 
     public void run() {

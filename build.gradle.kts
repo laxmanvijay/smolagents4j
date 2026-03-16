@@ -1,5 +1,7 @@
 plugins {
     id("java")
+    id("org.springframework.boot") version("3.4.3")
+    id("io.spring.dependency-management") version("1.1.4")
 }
 
 group = "com.smolagents4j"
@@ -10,9 +12,11 @@ repositories {
 }
 
 dependencies {
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.4.3"))
+    implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation(platform("org.springframework.ai:spring-ai-bom:1.0.0"))
-    implementation("org.springframework.ai:spring-ai-huggingface")
-    implementation("org.springframework.ai:spring-ai-openai")
+    implementation("org.springframework.ai:spring-ai-starter-model-huggingface")
 
     implementation("org.postgresql:postgresql:42.7.4")
     implementation("org.springframework.data:spring-data-jpa:3.2.5")
@@ -25,4 +29,9 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
