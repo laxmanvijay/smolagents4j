@@ -1,4 +1,8 @@
 package com.smolagents4j.tools;
 
-public class BaseTool {
+import com.smolagents4j.exceptions.ToolException;
+
+public interface BaseTool {
+
+    String run(String task) throws ToolException;
 }

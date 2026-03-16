@@ -1,4 +1,6 @@
 package com.smolagents4j.models;
 
-public class Model {
+public interface Model {
+
+    ModelOutput ask(String task);
 }
