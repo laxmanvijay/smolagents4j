@@ -1,4 +1,5 @@
 package com.smolagents4j.remoteexecutors;
 
-public class RemotePythonExecutor {
+public interface RemotePythonExecutor {
+    String run(String task);
 }

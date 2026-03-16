@@ -1,7 +1,7 @@
 package com.smolagents4j.exceptions;
 
 public class MemoryReadException extends Exception {
-    MemoryReadException(String message) {
+    public MemoryReadException(String message) {
         super(message);
     }
 }

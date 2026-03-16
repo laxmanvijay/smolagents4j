@@ -1,5 +1,6 @@
 package com.smolagents4j.agents;
 
+import com.smolagents4j.constants.AgentConstants;
 import com.smolagents4j.exceptions.MemoryReadException;
 import com.smolagents4j.exceptions.MemoryWriteException;
 import com.smolagents4j.exceptions.ToolException;
@@ -39,7 +40,7 @@ public class Agent {
 
             message.add("Memory found for task; Resuming by appending previous messages");
             for (var m : mem) {
-                message.add(m.message());
+                appendIfPresent(message, formatModelOutput(m));
             }
         } catch (MemoryReadException e) {
             this.agentLogger.log("Memory read exception occurred: " + e.getMessage());
@@ -51,8 +52,10 @@ public class Agent {
         }
 
         boolean isCompleted = false;
+        int iterationCount = 0;
 
-        while (!isCompleted) {
+        while (!isCompleted && iterationCount < AgentConstants.max_agent_iterations) {
+            iterationCount++;
             var output = llm.ask(message.stream().reduce("", (x, y) -> x + "; " + y));
 
             try {
@@ -65,13 +68,20 @@ public class Agent {
                 message.add("Memory write exception occurred: " + e.getMessage());
             }
 
-            message.add(output.message());
-            this.agentLogger.log("Agent output: " + output.message());
+            String formattedOutput = formatModelOutput(output);
+            appendIfPresent(message, formattedOutput);
+            if (!formattedOutput.isBlank()) {
+                this.agentLogger.log("Agent output: " + formattedOutput);
+            }
 
             if (output.shouldPerformToolCall()) {
                 try {
-                    this.agentLogger.log("Invoking tool: " + output.toolName() + "; task: " + output.toolTask());
-                    message.add(tools.get(output.toolName()).run(output.toolTask()));
+                    String actionName = output.actionName();
+                    String actionInput = output.actionInput();
+                    BaseTool tool = tools.get(actionName);
+
+                    this.agentLogger.log("Invoking tool: " + actionName + "; task: " + actionInput);
+                    message.add("Observation: " + tool.run(actionInput));
                 }
                 catch (ToolException e) {
                     message.add("Tool exception thrown: " + e.getMessage());
@@ -83,5 +93,39 @@ public class Agent {
                 isCompleted = true;
             }
         }
+
+        if (!isCompleted) {
+            this.agentLogger.log("Agent stopped after reaching max iterations: " + AgentConstants.max_agent_iterations);
+        }
+    }
+
+    private void appendIfPresent(ArrayList<String> message, String content) {
+        if (content != null && !content.isBlank()) {
+            message.add(content);
+        }
+    }
+
+    private String formatModelOutput(ModelOutput output) {
+        ArrayList<String> parts = new ArrayList<>();
+
+        if (output.thought() != null && !output.thought().isBlank()) {
+            parts.add("Thought: " + output.thought());
+        }
+
+        if (output.shouldPerformToolCall()) {
+            if (output.actionName() != null && !output.actionName().isBlank()) {
+                parts.add("Action: " + output.actionName());
+            }
+
+            if (output.actionInput() != null && !output.actionInput().isBlank()) {
+                parts.add("Action Input: " + output.actionInput());
+            }
+        }
+
+        if (output.finalAnswer() != null && !output.finalAnswer().isBlank()) {
+            parts.add("Final Answer: " + output.finalAnswer());
+        }
+
+        return String.join("; ", parts);
     }
 }

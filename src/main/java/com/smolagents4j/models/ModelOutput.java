@@ -1,9 +1,10 @@
 package com.smolagents4j.models;
 
 public record ModelOutput(
-        String message,
-        String toolName,
+        String thought,
+        String actionName,
+        String actionInput,
         Boolean shouldPerformToolCall,
-        String toolTask,
+        String finalAnswer,
         Boolean isCompleted) {
 }
